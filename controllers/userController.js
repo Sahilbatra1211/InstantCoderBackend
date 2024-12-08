@@ -10,10 +10,17 @@ import razorpay from 'razorpay';
 
 // Gateway Initialize
 const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
-const razorpayInstance = new razorpay({
+
+let razorpayInstance;
+
+if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
+  razorpayInstance = new razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
     key_secret: process.env.RAZORPAY_KEY_SECRET,
-})
+  });
+} else {
+  console.log("Razorpay keys are not set. Skipping Razorpay initialization.");
+}
 
 // API to register user
 const registerUser = async (req, res) => {
