@@ -47,6 +47,12 @@ const registerUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
         const hashedPassword = await bcrypt.hash(password, salt)
 
+        // throw error if the users already exists
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser != null) {
+            return res.json({ success: false, message: "Email is already registered. Please login instead." });
+        }
+
         const userData = {
             name,
             email,
