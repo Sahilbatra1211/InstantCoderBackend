@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import doctorModel from "../models/doctorModel.js";
+import coderModel from "../models/coderModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 
 // API for doctor Login 
@@ -9,7 +9,7 @@ const loginDoctor = async (req, res) => {
     try {
 
         const { email, password } = req.body
-        const user = await doctorModel.findOne({ email })
+        const user = await coderModel.findOne({ email })
 
         if (!user) {
             return res.json({ success: false, message: "Invalid credentials" })
@@ -92,7 +92,7 @@ const appointmentComplete = async (req, res) => {
 const doctorList = async (req, res) => {
     try {
 
-        const doctors = await doctorModel.find({}).select(['-password', '-email'])
+        const doctors = await coderModel.find({}).select(['-password', '-email'])
         res.json({ success: true, doctors })
 
     } catch (error) {
@@ -108,8 +108,8 @@ const changeAvailablity = async (req, res) => {
 
         const { docId } = req.body
 
-        const docData = await doctorModel.findById(docId)
-        await doctorModel.findByIdAndUpdate(docId, { available: !docData.available })
+        const docData = await coderModel.findById(docId)
+        await coderModel.findByIdAndUpdate(docId, { available: !docData.available })
         res.json({ success: true, message: 'Availablity Changed' })
 
     } catch (error) {
@@ -123,7 +123,7 @@ const doctorProfile = async (req, res) => {
     try {
 
         const { docId } = req.body
-        const profileData = await doctorModel.findById(docId).select('-password')
+        const profileData = await coderModel.findById(docId).select('-password')
 
         res.json({ success: true, profileData })
 
@@ -139,7 +139,7 @@ const updateDoctorProfile = async (req, res) => {
 
         const { docId, fees, address, available } = req.body
 
-        await doctorModel.findByIdAndUpdate(docId, { fees, address, available })
+        await coderModel.findByIdAndUpdate(docId, { fees, address, available })
 
         res.json({ success: true, message: 'Profile Updated' })
 

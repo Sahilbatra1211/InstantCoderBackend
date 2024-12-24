@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import userModel from "../models/userModel.js";
-import doctorModel from "../models/doctorModel.js";
+import coderModel from "../models/coderModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
@@ -15,51 +15,51 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true,
     auth: {
-     user: process.env.EMAIL_SERVICE_SMTP,
-     pass: process.env.EMAIL_SERVICE_PASSWORD,
+        user: process.env.EMAIL_SERVICE_SMTP,
+        pass: process.env.EMAIL_SERVICE_PASSWORD,
     },
-   });
+});
 
-function getBackendUrl(){
+function getBackendUrl() {
     let baseUrl = process.env.VITE_BACKEND_URL
-    if(process.env.NODE_ENV == 'dev') {
-        baseUrl = 'localhost:' + process.env.PORT 
+    if (process.env.NODE_ENV == 'dev') {
+        baseUrl = 'localhost:' + process.env.PORT
     }
     return baseUrl + '/my-appointments'
 }
 
 function formatDateString(dateString) {
     const [day, month, year] = dateString.split('_');
-    
+
     // Create a Date object (months are 0-indexed in JavaScript)
     const date = new Date(`${year}-${month}-${day}`);
-    
+
     // Define an array of month names for easy lookup
     const months = [
-      "January", "February", "March", "April", "May", "June",
-      "July", "August", "September", "October", "November", "December"
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
     ];
-    
+
     // Function to add suffix to day (e.g., 1st, 2nd, 3rd, 4th, etc.)
     function getDaySuffix(day) {
-      if (day > 3 && day < 21) return `${day}th`; // Handle 11th-13th
-      switch (day % 10) {
-        case 1: return `${day}st`;
-        case 2: return `${day}nd`;
-        case 3: return `${day}rd`;
-        default: return `${day}th`;
-      }
+        if (day > 3 && day < 21) return `${day}th`; // Handle 11th-13th
+        switch (day % 10) {
+            case 1: return `${day}st`;
+            case 2: return `${day}nd`;
+            case 3: return `${day}rd`;
+            default: return `${day}th`;
+        }
     }
-    
+
     // Get the day, month name, and year
     const formattedDay = getDaySuffix(day);
     const formattedMonth = months[parseInt(month) - 1];  // Adjust for 0-indexing
     const formattedYear = year;
-  
+
     // Return the formatted string
     return `${formattedDay} ${formattedMonth}, ${formattedYear}`;
-  }
-  
+}
+
 
 function generateEmailTemplate(userName, coderName, slotDate, slotTime, locationUrl) {
     return `
@@ -125,12 +125,12 @@ const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
 let razorpayInstance;
 
 if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-  razorpayInstance = new razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
+    razorpayInstance = new razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
 } else {
-  console.log("Razorpay keys are not set. Skipping Razorpay initialization.");
+    console.log("Razorpay keys are not set. Skipping Razorpay initialization.");
 }
 
 // API to register user
@@ -254,12 +254,12 @@ const updateProfile = async (req, res) => {
     }
 }
 
-// API to book appointment 
+// API to book appointment , this needs to be changed and coder speciality needs to be added with fees. 
 const bookAppointment = async (req, res) => {
     try {
         const { userId, docId, slotDate, slotTime } = req.body
-        const docData = await doctorModel.findById(docId).select("-password")
-        
+        const docData = await coderModel.findById(docId).select("-password")
+
         if (!docData.available) {
             return res.json({ success: false, message: 'Coder Not Available' })
         }
@@ -281,6 +281,7 @@ const bookAppointment = async (req, res) => {
 
         const userData = await userModel.findById(userId).select("-password")
         await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
+        await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
         delete docData.slots_booked
 
         const appointmentData = {
@@ -298,7 +299,7 @@ const bookAppointment = async (req, res) => {
         await newAppointment.save()
 
         // save new slots data in docData
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+        await coderModel.findByIdAndUpdate(docId, { slots_booked })
 
         res.json({ success: true, message: 'Appointment Booked' })
 
@@ -326,13 +327,13 @@ const cancelAppointment = async (req, res) => {
         // releasing doctor slot 
         const { docId, slotDate, slotTime } = appointmentData
 
-        const doctorData = await doctorModel.findById(docId)
+        const doctorData = await coderModel.findById(docId)
 
         let slots_booked = doctorData.slots_booked
 
         slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
 
-        await doctorModel.findByIdAndUpdate(docId, { slots_booked })
+        await coderModel.findByIdAndUpdate(docId, { slots_booked })
 
         res.json({ success: true, message: 'Appointment Cancelled' })
 

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import appointmentModel from "../models/appointmentModel.js";
-import doctorModel from "../models/doctorModel.js";
+import coderModel from "../models/coderModel.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
@@ -57,67 +57,80 @@ const appointmentCancel = async (req, res) => {
 
 }
 
-// API for adding Doctor
-const addDoctor = async (req, res) => {
-
+// API for adding Coder
+const addCoder = async (req, res) => {
     try {
-
-        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body
-        const imageFile = req.file
-
-        // checking for all data to add doctor
-        if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
-            return res.json({ success: false, message: "Missing Details" })
+        const { name, email, password, specialities, experience, about } = req.body;
+        const imageFile = req.file;
+        console.log(specialities);
+        // Check for all required fields
+        if (!name || !email || !password || !specialities || !experience || !about) {
+            return res.json({ success: false, message: "Missing Details" });
         }
 
-        // validating email format
+        // Validate email format
         if (!validator.isEmail(email)) {
-            return res.json({ success: false, message: "Please enter a valid email" })
+            return res.json({ success: false, message: "Please enter a valid email" });
         }
 
-        // validating strong password
+        // Validate strong password
         if (password.length < 8) {
-            return res.json({ success: false, message: "Please enter a strong password" })
+            return res.json({ success: false, message: "Please enter a strong password" });
         }
 
-        // hashing user password
-        const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
-        const hashedPassword = await bcrypt.hash(password, salt)
+        // Validate specialities
+        const parsedSpecialities = JSON.parse(specialities); // Expecting specialities to be a JSON string
+        if (!Array.isArray(parsedSpecialities) || parsedSpecialities.length === 0) {
+            return res.json({ success: false, message: "Please provide at least one speciality with fees" });
+        }
 
-        // upload image to cloudinary
-        const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" })
-        const imageUrl = imageUpload.secure_url
+        // Ensure each speciality object has a name and fees
+        for (const speciality of parsedSpecialities) {
+            if (!speciality.speciality || typeof speciality.speciality !== 'string' || speciality.speciality.trim() === '') {
+                return res.json({ success: false, message: "Each speciality must have a valid name" });
+            }
+            
+            if (!speciality.fee || isNaN(parseFloat(speciality.fee)) || parseFloat(speciality.fee) <= 0) {
+                return res.json({ success: false, message: "Each speciality must have a numeric fee greater than 0" });
+            }
+        }
 
-        const doctorData = {
+        // Hash user password
+        const salt = await bcrypt.genSalt(10); // The more rounds, the more time it will take
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Upload image to Cloudinary
+        const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+        const imageUrl = imageUpload.secure_url;
+
+        const coderData = {
             name,
             email,
             image: imageUrl,
             password: hashedPassword,
-            speciality,
-            degree,
+            specialities: parsedSpecialities, // Store specialities as an array of objects
             experience,
             about,
-            fees,
-            address: JSON.parse(address),
             date: Date.now()
-        }
+        };
 
-        const newDoctor = new doctorModel(doctorData)
-        await newDoctor.save()
-        res.json({ success: true, message: 'Doctor Added' })
-
+        const newCoder = new coderModel(coderData);
+        await newCoder.save();
+        res.json({ success: true, message: 'Doctor Added' });
     } catch (error) {
-        console.log(error)
-        res.json({ success: false, message: error.message })
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-}
+};
 
-// API to get all doctors list for admin panel
-const allDoctors = async (req, res) => {
+
+// API to get all coders list for admin panel
+const allCoders = async (req, res) => {
     try {
 
-        const doctors = await doctorModel.find({}).select('-password')
-        res.json({ success: true, doctors })
+        const coders = await coderModel.find({}).select('-password')
+        console.log(coders);
+        res.json({ success: true, coders })
 
     } catch (error) {
         console.log(error)
@@ -129,12 +142,12 @@ const allDoctors = async (req, res) => {
 const adminDashboard = async (req, res) => {
     try {
 
-        const doctors = await doctorModel.find({})
+        const coders = await coderModel.find({})
         const users = await userModel.find({})
         const appointments = await appointmentModel.find({})
 
         const dashData = {
-            doctors: doctors.length,
+            coders: coders.length,
             appointments: appointments.length,
             patients: users.length,
             latestAppointments: appointments.reverse()
@@ -152,7 +165,7 @@ export {
     loginAdmin,
     appointmentsAdmin,
     appointmentCancel,
-    addDoctor,
-    allDoctors,
+    addCoder,
+    allCoders,
     adminDashboard
 }
