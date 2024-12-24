@@ -7,6 +7,117 @@ import appointmentModel from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
 import razorpay from 'razorpay';
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+        user: process.env.EMAIL_SERVICE_SMTP,
+        pass: process.env.EMAIL_SERVICE_PASSWORD,
+    },
+});
+
+function getBackendUrl() {
+    let baseUrl = process.env.VITE_BACKEND_URL
+    if (process.env.NODE_ENV == 'dev') {
+        baseUrl = 'localhost:' + process.env.PORT
+    }
+    return baseUrl + '/my-appointments'
+}
+
+function formatDateString(dateString) {
+    const [day, month, year] = dateString.split('_');
+
+    // Create a Date object (months are 0-indexed in JavaScript)
+    const date = new Date(`${year}-${month}-${day}`);
+
+    // Define an array of month names for easy lookup
+    const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+
+    // Function to add suffix to day (e.g., 1st, 2nd, 3rd, 4th, etc.)
+    function getDaySuffix(day) {
+        if (day > 3 && day < 21) return `${day}th`; // Handle 11th-13th
+        switch (day % 10) {
+            case 1: return `${day}st`;
+            case 2: return `${day}nd`;
+            case 3: return `${day}rd`;
+            default: return `${day}th`;
+        }
+    }
+
+    // Get the day, month name, and year
+    const formattedDay = getDaySuffix(day);
+    const formattedMonth = months[parseInt(month) - 1];  // Adjust for 0-indexing
+    const formattedYear = year;
+
+    // Return the formatted string
+    return `${formattedDay} ${formattedMonth}, ${formattedYear}`;
+}
+
+
+function generateEmailTemplate(userName, coderName, slotDate, slotTime, locationUrl) {
+    return `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; padding: 20px; border: 1px solid #ddd; border-radius: 10px; background: linear-gradient(to bottom right, #f9f9f9, #e9ecef);">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <h1 style="color: #4CAF50;">Your Appointment is Confirmed!</h1>
+          <p style="font-size: 1.2em; color: #555;">Hi ${userName}, Thank you for booking with us!</p>
+        </div>
+        <div style="padding: 10px; background-color: #ffffff; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); animation: fadeIn 2s;">
+          <h2 style="color: #333;">Appointment Details</h2>
+          <ul style="list-style: none; padding: 0;">
+            <li style="margin: 10px 0; font-size: 1.1em;"><strong>Coder Name:</strong> ${coderName}</li>
+            <li style="margin: 10px 0; font-size: 1.1em;"><strong>Date:</strong> ${formatDateString(slotDate)}</li>
+            <li style="margin: 10px 0; font-size: 1.1em;"><strong>Time:</strong> ${slotTime}</li>
+          </ul>
+        </div>
+        <div style="text-align: center; margin-top: 20px; animation: bounce 1.5s infinite;">
+          <a href="${getBackendUrl()}"  style="text-decoration: none; color: #ffffff; background-color: #4CAF50; padding: 10px 20px; border-radius: 5px; font-size: 1em; transition: background-color 0.3s; ">View Appointment</a>
+        </div>
+        <footer style="margin-top: 20px; text-align: center; font-size: 0.9em; color: #777;">
+          <p>&copy; ${new Date().getFullYear()} Instant Coder Team. All rights reserved.</p>
+        </footer>
+        <style>
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+          }
+          a:hover {
+            background-color: #45a049;
+          }
+        </style>
+      </div>
+    `;
+}
+
+async function sendAppointmentEmail(userName, coderName, slotDate, slotTime, recipientEmail) {
+    const emailContent = generateEmailTemplate(userName, coderName, slotDate, slotTime);
+
+    const mailOptions = {
+        from: process.env.EMAIL_SERVICE_SMTP, // Sender email
+        to: recipientEmail, // Recipient email
+        subject: 'Appointment Confirmation',
+        html: emailContent, // Email content in HTML format
+    };
+
+    try {
+        console.log('Sending email...');
+        await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
+}
 
 // Gateway Initialize
 const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
@@ -14,12 +125,12 @@ const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
 let razorpayInstance;
 
 if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
-  razorpayInstance = new razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-  });
+    razorpayInstance = new razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID,
+        key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
 } else {
-  console.log("Razorpay keys are not set. Skipping Razorpay initialization.");
+    console.log("Razorpay keys are not set. Skipping Razorpay initialization.");
 }
 
 // API to register user
@@ -145,14 +256,12 @@ const updateProfile = async (req, res) => {
 
 // API to book appointment , this needs to be changed and coder speciality needs to be added with fees. 
 const bookAppointment = async (req, res) => {
-
     try {
-
         const { userId, docId, slotDate, slotTime } = req.body
         const docData = await coderModel.findById(docId).select("-password")
 
         if (!docData.available) {
-            return res.json({ success: false, message: 'Doctor Not Available' })
+            return res.json({ success: false, message: 'Coder Not Available' })
         }
 
         let slots_booked = docData.slots_booked
@@ -171,7 +280,7 @@ const bookAppointment = async (req, res) => {
         }
 
         const userData = await userModel.findById(userId).select("-password")
-
+        await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
         delete docData.slots_booked
 
         const appointmentData = {
