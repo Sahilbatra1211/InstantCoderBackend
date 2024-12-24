@@ -281,6 +281,7 @@ const bookAppointment = async (req, res) => {
 
         const userData = await userModel.findById(userId).select("-password")
         await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
+        await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
         delete docData.slots_booked
 
         const appointmentData = {
