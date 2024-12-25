@@ -8,6 +8,11 @@ import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
 import razorpay from 'razorpay';
 import nodemailer from 'nodemailer';
+import { OAuth2Client } from 'google-auth-library';
+import crypto from 'crypto';
+
+
+const client = new OAuth2Client('969886296841-a0fr5bnv2rrt22bptihti8o9cabsghh8.apps.googleusercontent.com');
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -207,6 +212,71 @@ const loginUser = async (req, res) => {
         res.json({ success: false, message: error.message })
     }
 }
+
+const callback = async (req, res) => {
+    const token = req.body.token;  // Token sent by frontend in the POST request body
+
+    if (!token) {
+        return res.status(400).send('Token is required');
+    }
+
+    try {
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: '969886296841-a0fr5bnv2rrt22bptihti8o9cabsghh8.apps.googleusercontent.com',
+        });
+
+        const payload = ticket.getPayload();
+        const userId = payload['sub'];  // Unique identifier for the user
+        const email = payload['email'];  // Email from Google
+        const name = payload['name'];  // Full name from Google
+
+        // Check if user already exists in the database
+        let existingUser = await userModel.findOne({ email });
+
+        if (!existingUser) {
+            // If the user doesn't exist, register them with a random password
+            const randomPassword = crypto.randomBytes(16).toString('hex');  // Generate a random 16-byte password and convert to hex
+
+            // Hash the random password
+            const salt = await bcrypt.genSalt(10);  // Generate salt for hashing
+            const hashedPassword = await bcrypt.hash(randomPassword, salt);  // Hash the random password
+
+            // User data for new user
+            const userData = {
+                name,
+                email,
+                password: hashedPassword,
+            };
+
+            // Create a new user
+            const newUser = new userModel(userData);
+            existingUser = await newUser.save();
+
+            // Optionally, send the random password to the user via email
+            console.log(`New user created. Random password: ${randomPassword}`);
+        }
+
+        // Generate a JWT token for the user
+        const jwtToken = jwt.sign({ id: existingUser._id }, process.env.JWT_SECRET);
+
+        // Send back the user info and token
+        return res.status(200).json({
+            success: true,
+            message: 'User authenticated successfully',
+            token: jwtToken,  // JWT token
+            user: {
+                userId: existingUser._id,
+                name: existingUser.name,
+                email: existingUser.email,
+            },
+        });
+    } catch (error) {
+        console.error('Error verifying Google ID token:', error);
+        return res.status(400).send('Error authenticating with Google');
+    }
+};
+
 
 // API to get user profile data
 const getProfile = async (req, res) => {
@@ -468,6 +538,7 @@ const verifyStripe = async (req, res) => {
 
 export {
     loginUser,
+    callback,
     registerUser,
     getProfile,
     updateProfile,

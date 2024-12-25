@@ -13,7 +13,6 @@ const port = process.env.PORT || 8080
 connectDB()
 connectCloudinary()
 
-console.log('Environment variables:', process.env);
 
 // middlewares
 app.use(express.json())
