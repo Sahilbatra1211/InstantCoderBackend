@@ -20,7 +20,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-
+      
+      - name: Build project with secrets
+        env: ${{ secrets }}
+      
       - name: npm install, build, and test
         run: |
           npm install
@@ -61,8 +64,6 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_70168E1EE40C421AAA14DD5158B1D7EE }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_2695889E72FE4DD29E6270446674BDB8 }}
         
-      - name: Build project with secrets
-        env: ${{ secrets }}
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
