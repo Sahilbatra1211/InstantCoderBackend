@@ -22,6 +22,7 @@ jobs:
           node-version: '18.x'
       
       - name: Build project with secrets
+        run: echo "Building project with secrets..."
         env: ${{ secrets }}
       
       - name: npm install, build, and test
