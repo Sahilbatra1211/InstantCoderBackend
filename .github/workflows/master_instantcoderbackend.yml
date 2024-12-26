@@ -21,10 +21,10 @@ jobs:
         with:
           node-version: '18.x'
       
-      - name: Build project with secrets
-        run: echo "$SECRETS_CONTEXT"
+      - name: Use secret in a script
         env:
-            SECRETS_CONTEXT: ${{ toJson(secrets) }}
+          API_KEY: ${{ secrets.MONGODB_URI }}
+        run: echo "Using the secret API_KEY $MONGODB_URI"
       
       - name: Print environment variables
         run: printenv
