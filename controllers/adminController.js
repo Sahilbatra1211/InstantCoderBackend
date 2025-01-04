@@ -89,7 +89,7 @@ const addCoder = async (req, res) => {
             if (!speciality.speciality || typeof speciality.speciality !== 'string' || speciality.speciality.trim() === '') {
                 return res.json({ success: false, message: "Each speciality must have a valid name" });
             }
-            
+
             if (!speciality.fee || isNaN(parseFloat(speciality.fee)) || parseFloat(speciality.fee) <= 0) {
                 return res.json({ success: false, message: "Each speciality must have a numeric fee greater than 0" });
             }
@@ -116,7 +116,7 @@ const addCoder = async (req, res) => {
 
         const newCoder = new coderModel(coderData);
         await newCoder.save();
-        res.json({ success: true, message: 'Doctor Added' });
+        res.json({ success: true, message: 'Coder Added' });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: error.message });

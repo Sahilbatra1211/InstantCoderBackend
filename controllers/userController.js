@@ -327,14 +327,14 @@ const updateProfile = async (req, res) => {
 // API to book appointment , this needs to be changed and coder speciality needs to be added with fees. 
 const bookAppointment = async (req, res) => {
     try {
-        const { userId, docId, slotDate, slotTime } = req.body
-        const docData = await coderModel.findById(docId).select("-password")
+        const { userId, coderId, slotDate, slotTime } = req.body
+        const coderData = await coderModel.findById(coderId).select("-password")
 
-        if (!docData.available) {
+        if (!coderData.available) {
             return res.json({ success: false, message: 'Coder Not Available' })
         }
 
-        let slots_booked = docData.slots_booked
+        let slots_booked = coderData.slots_booked
 
         // checking for slot availablity 
         if (slots_booked[slotDate]) {
@@ -350,16 +350,16 @@ const bookAppointment = async (req, res) => {
         }
 
         const userData = await userModel.findById(userId).select("-password")
-        await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
-        await sendAppointmentEmail(userData.name, docData.name, slotDate, slotTime, userData.email);
-        delete docData.slots_booked
+        await sendAppointmentEmail(userData.name, coderData.name, slotDate, slotTime, userData.email);
+        await sendAppointmentEmail(userData.name, coderData.name, slotDate, slotTime, userData.email);
+        delete coderData.slots_booked
 
         const appointmentData = {
             userId,
-            docId,
+            coderId,
             userData,
-            docData,
-            amount: docData.fees,
+            coderData,
+            amount: coderData.fees,
             slotTime,
             slotDate,
             date: Date.now()
@@ -368,8 +368,8 @@ const bookAppointment = async (req, res) => {
         const newAppointment = new appointmentModel(appointmentData)
         await newAppointment.save()
 
-        // save new slots data in docData
-        await coderModel.findByIdAndUpdate(docId, { slots_booked })
+        // save new slots data in coderData
+        await coderModel.findByIdAndUpdate(coderId, { slots_booked })
 
         res.json({ success: true, message: 'Appointment Booked' })
 
@@ -394,16 +394,16 @@ const cancelAppointment = async (req, res) => {
 
         await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
 
-        // releasing doctor slot 
-        const { docId, slotDate, slotTime } = appointmentData
+        // releasing coder slot 
+        const { coderId, slotDate, slotTime } = appointmentData
 
-        const doctorData = await coderModel.findById(docId)
+        const coderData = await coderModel.findById(coderId)
 
-        let slots_booked = doctorData.slots_booked
+        let slots_booked = coderData.slots_booked
 
         slots_booked[slotDate] = slots_booked[slotDate].filter(e => e !== slotTime)
 
-        await coderModel.findByIdAndUpdate(docId, { slots_booked })
+        await coderModel.findByIdAndUpdate(coderId, { slots_booked })
 
         res.json({ success: true, message: 'Appointment Cancelled' })
 

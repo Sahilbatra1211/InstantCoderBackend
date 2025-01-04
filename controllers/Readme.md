@@ -127,7 +127,7 @@ This backend system is designed to:
      ```json
      {
        "userId": "USER_ID",
-       "docId": "DOCTOR_ID",
+       "coderId": "coder_ID",
        "slotDate": "YYYY-MM-DD",
        "slotTime": "HH:MM"
      }

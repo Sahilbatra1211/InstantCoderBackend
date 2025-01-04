@@ -5,12 +5,12 @@ const specialitySchema = new mongoose.Schema({
     fee: { type: Number, required: true }
 });
 
-const doctorSchema = new mongoose.Schema({
+const coderSchema = new mongoose.Schema({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     image: { type: String, required: true },
-    specialities: { type: [specialitySchema], required: true }, // This will now store an array of speciality objects
+    specialities: { type: [specialitySchema], required: true },
     degree: { type: String, required: false },
     experience: { type: String, required: true },
     about: { type: String, required: true },
@@ -21,5 +21,5 @@ const doctorSchema = new mongoose.Schema({
     date: { type: Number, required: true },
 }, { minimize: false });
 
-const coderModel = mongoose.models.doctor || mongoose.model("doctor", doctorSchema);
+const coderModel = mongoose.models.coder || mongoose.model("coder", coderSchema);
 export default coderModel;

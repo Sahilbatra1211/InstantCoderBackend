@@ -1,13 +1,13 @@
 # Appointment Management System API Documentation
 
-This project provides a backend system for managing appointments, user profiles, and payments. It includes three main modules: Admin, Doctor, and User, each with its respective endpoints.
+This project provides a backend system for managing appointments, user profiles, and payments. It includes three main modules: Admin, coder, and User, each with its respective endpoints.
 
 ---
 
 ## Table of Contents
 
 - [Admin APIs](#admin-apis)
-- [Doctor APIs](#doctor-apis)
+- [coder APIs](#coder-apis)
 - [User APIs](#user-apis)
 - [Technologies Used](#technologies-used)
 - [Setup Instructions](#setup-instructions)
@@ -23,20 +23,20 @@ This project provides a backend system for managing appointments, user profiles,
 
 ---
 
-### **Doctors Management**
-2. **Add Doctor**  
-   - **Endpoint**: `POST /admin/add-doctor`  
-   - **Description**: Add a new doctor to the system.  
+### **coders Management**
+2. **Add coder**  
+   - **Endpoint**: `POST /admin/add-coder`  
+   - **Description**: Add a new coder to the system.  
    - **Middleware**: `authAdmin`, `multer`
 
-3. **Get All Doctors**  
-   - **Endpoint**: `GET /admin/all-doctors`  
-   - **Description**: Retrieve all doctors.  
+3. **Get All coders**  
+   - **Endpoint**: `GET /admin/all-coders`  
+   - **Description**: Retrieve all coders.  
    - **Middleware**: `authAdmin`
 
-4. **Change Doctor Availability**  
+4. **Change coder Availability**  
    - **Endpoint**: `POST /admin/change-availability`  
-   - **Description**: Update a doctor's availability status.  
+   - **Description**: Update a coder's availability status.  
    - **Middleware**: `authAdmin`
 
 ---
@@ -59,57 +59,57 @@ This project provides a backend system for managing appointments, user profiles,
 
 ---
 
-## Doctor APIs
+## coder APIs
 
 ### **Authentication**
-1. **Login Doctor**  
-   - **Endpoint**: `POST /doctor/login`  
-   - **Description**: Authenticate a doctor user.
+1. **Login coder**  
+   - **Endpoint**: `POST /coder/login`  
+   - **Description**: Authenticate a coder user.
 
 ---
 
 ### **Profile Management**
-2. **Doctor Profile**  
-   - **Endpoint**: `GET /doctor/profile`  
-   - **Description**: Retrieve doctor's profile information.  
-   - **Middleware**: `authDoctor`
+2. **coder Profile**  
+   - **Endpoint**: `GET /coder/profile`  
+   - **Description**: Retrieve coder's profile information.  
+   - **Middleware**: `authCoder`
 
-3. **Update Doctor Profile**  
-   - **Endpoint**: `POST /doctor/update-profile`  
-   - **Description**: Update the doctor's profile.  
-   - **Middleware**: `authDoctor`
+3. **Update coder Profile**  
+   - **Endpoint**: `POST /coder/update-profile`  
+   - **Description**: Update the coder's profile.  
+   - **Middleware**: `authCoder`
 
 ---
 
 ### **Appointments Management**
 4. **Get Appointments**  
-   - **Endpoint**: `GET /doctor/appointments`  
-   - **Description**: Retrieve doctor's appointments.  
-   - **Middleware**: `authDoctor`
+   - **Endpoint**: `GET /coder/appointments`  
+   - **Description**: Retrieve coder's appointments.  
+   - **Middleware**: `authCoder`
 
 5. **Cancel Appointment**  
-   - **Endpoint**: `POST /doctor/cancel-appointment`  
+   - **Endpoint**: `POST /coder/cancel-appointment`  
    - **Description**: Cancel an appointment.  
-   - **Middleware**: `authDoctor`
+   - **Middleware**: `authCoder`
 
 6. **Complete Appointment**  
-   - **Endpoint**: `POST /doctor/complete-appointment`  
+   - **Endpoint**: `POST /coder/complete-appointment`  
    - **Description**: Mark an appointment as completed.  
-   - **Middleware**: `authDoctor`
+   - **Middleware**: `authCoder`
 
 7. **Dashboard**  
-   - **Endpoint**: `GET /doctor/dashboard`  
-   - **Description**: Retrieve doctor dashboard data.  
-   - **Middleware**: `authDoctor`
+   - **Endpoint**: `GET /coder/dashboard`  
+   - **Description**: Retrieve coder dashboard data.  
+   - **Middleware**: `authCoder`
 
 8. **Change Availability**  
-   - **Endpoint**: `POST /doctor/change-availability`  
-   - **Description**: Update doctor's availability status.  
-   - **Middleware**: `authDoctor`
+   - **Endpoint**: `POST /coder/change-availability`  
+   - **Description**: Update coder's availability status.  
+   - **Middleware**: `authCoder`
 
-9. **Doctor List**  
-   - **Endpoint**: `GET /doctor/list`  
-   - **Description**: Retrieve a list of all doctors.
+9. **coder List**  
+   - **Endpoint**: `GET /coder/list`  
+   - **Description**: Retrieve a list of all coders.
 
 ---
 

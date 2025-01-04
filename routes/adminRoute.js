@@ -1,6 +1,6 @@
 import express from 'express';
 import { loginAdmin, appointmentsAdmin, appointmentCancel, addCoder, allCoders, adminDashboard } from '../controllers/adminController.js';
-import { changeAvailablity } from '../controllers/doctorController.js';
+import { changeAvailablity } from '../controllers/coderController.js';
 import authAdmin from '../middleware/authAdmin.js';
 import upload from '../middleware/multer.js';
 const adminRouter = express.Router();
