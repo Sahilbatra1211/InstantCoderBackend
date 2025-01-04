@@ -3,8 +3,8 @@ import bcrypt from "bcrypt";
 import coderModel from "../models/coderModel.js";
 import appointmentModel from "../models/appointmentModel.js";
 
-// API for doctor Login 
-const loginDoctor = async (req, res) => {
+// API for coder Login 
+const loginCoder = async (req, res) => {
 
     try {
 
@@ -31,12 +31,12 @@ const loginDoctor = async (req, res) => {
     }
 }
 
-// API to get doctor appointments for doctor panel
-const appointmentsDoctor = async (req, res) => {
+// API to get coder appointments for coder panel
+const appointmentsCoder = async (req, res) => {
     try {
 
-        const { docId } = req.body
-        const appointments = await appointmentModel.find({ docId })
+        const { coderId } = req.body
+        const appointments = await appointmentModel.find({ coderId })
 
         res.json({ success: true, appointments })
 
@@ -46,14 +46,14 @@ const appointmentsDoctor = async (req, res) => {
     }
 }
 
-// API to cancel appointment for doctor panel
+// API to cancel appointment for coder panel
 const appointmentCancel = async (req, res) => {
     try {
 
-        const { docId, appointmentId } = req.body
+        const { coderId, appointmentId } = req.body
 
         const appointmentData = await appointmentModel.findById(appointmentId)
-        if (appointmentData && appointmentData.docId === docId) {
+        if (appointmentData && appointmentData.coderId === coderId) {
             await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true })
             return res.json({ success: true, message: 'Appointment Cancelled' })
         }
@@ -67,14 +67,14 @@ const appointmentCancel = async (req, res) => {
 
 }
 
-// API to mark appointment completed for doctor panel
+// API to mark appointment completed for coder panel
 const appointmentComplete = async (req, res) => {
     try {
 
-        const { docId, appointmentId } = req.body
+        const { coderId, appointmentId } = req.body
 
         const appointmentData = await appointmentModel.findById(appointmentId)
-        if (appointmentData && appointmentData.docId === docId) {
+        if (appointmentData && appointmentData.coderId === coderId) {
             await appointmentModel.findByIdAndUpdate(appointmentId, { isCompleted: true })
             return res.json({ success: true, message: 'Appointment Completed' })
         }
@@ -88,12 +88,12 @@ const appointmentComplete = async (req, res) => {
 
 }
 
-// API to get all doctors list for Frontend
-const doctorList = async (req, res) => {
+// API to get all coders list for Frontend
+const coderList = async (req, res) => {
     try {
 
-        const doctors = await coderModel.find({}).select(['-password', '-email'])
-        res.json({ success: true, doctors })
+        const coders = await coderModel.find({}).select(['-password', '-email'])
+        res.json({ success: true, coders })
 
     } catch (error) {
         console.log(error)
@@ -102,14 +102,14 @@ const doctorList = async (req, res) => {
 
 }
 
-// API to change doctor availablity for Admin and Doctor Panel
+// API to change coder availablity for Admin and coder Panel
 const changeAvailablity = async (req, res) => {
     try {
 
-        const { docId } = req.body
+        const { coderId } = req.body
 
-        const docData = await coderModel.findById(docId)
-        await coderModel.findByIdAndUpdate(docId, { available: !docData.available })
+        const coderData = await coderModel.findById(coderId)
+        await coderModel.findByIdAndUpdate(coderId, { available: !coderData.available })
         res.json({ success: true, message: 'Availablity Changed' })
 
     } catch (error) {
@@ -118,12 +118,12 @@ const changeAvailablity = async (req, res) => {
     }
 }
 
-// API to get doctor profile for  Doctor Panel
-const doctorProfile = async (req, res) => {
+// API to get coder profile for  coder Panel
+const coderProfile = async (req, res) => {
     try {
 
-        const { docId } = req.body
-        const profileData = await coderModel.findById(docId).select('-password')
+        const { coderId } = req.body
+        const profileData = await coderModel.findById(coderId).select('-password')
 
         res.json({ success: true, profileData })
 
@@ -133,13 +133,13 @@ const doctorProfile = async (req, res) => {
     }
 }
 
-// API to update doctor profile data from  Doctor Panel
-const updateDoctorProfile = async (req, res) => {
+// API to update coder profile data from  coder Panel
+const updatecoderProfile = async (req, res) => {
     try {
 
-        const { docId, fees, address, available } = req.body
+        const { coderId, fees, address, available } = req.body
 
-        await coderModel.findByIdAndUpdate(docId, { fees, address, available })
+        await coderModel.findByIdAndUpdate(coderId, { fees, address, available })
 
         res.json({ success: true, message: 'Profile Updated' })
 
@@ -149,13 +149,13 @@ const updateDoctorProfile = async (req, res) => {
     }
 }
 
-// API to get dashboard data for doctor panel
-const doctorDashboard = async (req, res) => {
+// API to get dashboard data for coder panel
+const coderDashboard = async (req, res) => {
     try {
 
-        const { docId } = req.body
+        const { coderId } = req.body
 
-        const appointments = await appointmentModel.find({ docId })
+        const appointments = await appointmentModel.find({ coderId })
 
         let earnings = 0
 
@@ -191,13 +191,13 @@ const doctorDashboard = async (req, res) => {
 }
 
 export {
-    loginDoctor,
-    appointmentsDoctor,
+    loginCoder,
+    appointmentsCoder,
     appointmentCancel,
-    doctorList,
+    coderList,
     changeAvailablity,
     appointmentComplete,
-    doctorDashboard,
-    doctorProfile,
-    updateDoctorProfile
+    coderDashboard,
+    coderProfile,
+    updatecoderProfile
 }

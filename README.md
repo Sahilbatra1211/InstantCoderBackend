@@ -3,7 +3,7 @@ Run the app on local:
 - npm run server
 
 End pointd exposed on prod:
-- https://instantcoderbackend-dabdczf0fwhgasbe.southeastasia-01.azurewebsites.net/api/doctor/list
+- https://instantcoderbackend-dabdczf0fwhgasbe.southeastasia-01.azurewebsites.net/api/coder/list
 - https://instantcoderbackend-dabdczf0fwhgasbe.southeastasia-01.azurewebsites.net/
 
 Potential issues:
