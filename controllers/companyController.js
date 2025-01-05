@@ -17,6 +17,7 @@ const createCompany = async (req, res) => {
 };
 
 const getCompanies = async (req, res) => {
+  console.log("test");
   try {
     const companies = await CompanyModel.find({});
     res.json({ success: true, companies });
@@ -81,10 +82,32 @@ const deleteCompany = async (req, res) => {
   }
 };
 
+const getCompaniesWithLevelNames = async (req, res) => {
+  try {
+    console.log("getCompaniesWithLevelNames endpoint called");
+    const companies = await CompanyModel.find({}, "name levels.levelName"); // Fetch only 'name' and 'levels.levelName'
+    if (!companies.length) {
+      return res.json({ success: true, message: "No companies found", companies: [] });
+    }
+
+    // Format response to only include company name and level names
+    const formattedCompanies = companies.map(company => ({
+      name: company.name,
+      levels: company.levels.map(level => level.levelName),
+    }));
+
+    res.json({ success: true, companies: formattedCompanies });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export {
   createCompany,
   getCompanies,
   getCompanyByName,
   updateCompany,
-  deleteCompany
+  deleteCompany,
+  getCompaniesWithLevelNames
 };
