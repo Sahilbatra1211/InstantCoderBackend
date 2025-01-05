@@ -24,7 +24,7 @@ jobs:
       - name: Use secret in a script
         env:
           API_KEY: ${{ secrets.MONGODB_URI }}
-        run: echo "Using the secret API_KEY $MONGODB_URI"
+        run: echo "Using the secret API_KEY  ${{ secrets.MONGODB_URI }} okok"
       
       - name: Print environment variables
         run: printenv
