@@ -12,7 +12,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    env: # Environment variables defined at the job level
+      ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+      ADMIN_PASSWORD: ${{ vars.ADMIN_PASSWORD }}
+      CLOUDINARY_API_KEY: ${{ vars.CLOUDINARY_API_KEY }}
+      CLOUDINARY_NAME: ${{ vars.CLOUDINARY_NAME }}
+      CLOUDINARY_SECRET_KEY: ${{ vars.CLOUDINARY_SECRET_KEY }}
+      CURRENCY: ${{ vars.CURRENCY }}
+      EMAIL_SERVICE_PASSWORD: ${{ vars.EMAIL_SERVICE_PASSWORD }}
+      EMAIL_SERVICE_SMTP: ${{ vars.EMAIL_SERVICE_SMTP }}
+      JWT_SECRET: ${{ vars.JWT_SECRET }}
+      MONGODB_URI: ${{ vars.MONGODB_URI }}
+      PORT: ${{ vars.PORT }}
+      VITE_BACKEND_URL: ${{ vars.VITE_BACKEND_URL }}
+      
     steps:
       - uses: actions/checkout@v4
 
@@ -20,24 +33,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18.x'
-      
-      - name: Use secret in a script
-        run: |
-          export ADMIN_EMAIL=${{ vars.ADMIN_EMAIL }}
-          export ADMIN_PASSWORD=${{ vars.ADMIN_PASSWORD }}
-          export CLOUDINARY_API_KEY=${{ vars.CLOUDINARY_API_KEY }}
-          export CLOUDINARY_NAME=${{ vars.CLOUDINARY_NAME }}
-          export CLOUDINARY_SECRET_KEY=${{ vars.CLOUDINARY_SECRET_KEY }}
-          export CURRENCY=${{ vars.CURRENCY }}
-          export EMAIL_SERVICE_PASSWORD=${{ vars.EMAIL_SERVICE_PASSWORD }}
-          export EMAIL_SERVICE_SMTP=${{ vars.EMAIL_SERVICE_SMTP }}
-          export JWT_SECRET=${{ vars.JWT_SECRET }}
-          export MONGODB_URI=${{ vars.MONGODB_URI }}
-          export PORT=${{ vars.PORT }}
-          export VITE_BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
-      
-          echo "Printing all environment variables"
-          printenv
           
       - name: Print environment variables
         run: printenv
