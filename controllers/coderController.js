@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import coderModel from "../models/coderModel.js";
-import appointmentModel from "../models/appointmentModel.js";
+import { coderModel } from "../models/coderModel.js";
+import { appointmentModel } from "../models/appointmentModel.js";
 
 // API for coder Login 
 const loginCoder = async (req, res) => {

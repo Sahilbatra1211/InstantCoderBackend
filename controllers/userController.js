@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import userModel from "../models/userModel.js";
-import coderModel from "../models/coderModel.js";
-import appointmentModel from "../models/appointmentModel.js";
+import { coderModel } from "../models/coderModel.js";
+import { appointmentModel } from "../models/appointmentModel.js";
 import { v2 as cloudinary } from 'cloudinary'
 import stripe from "stripe";
 import razorpay from 'razorpay';
@@ -350,7 +350,6 @@ const bookAppointment = async (req, res) => {
         }
 
         const userData = await userModel.findById(userId).select("-password")
-        await sendAppointmentEmail(userData.name, coderData.name, slotDate, slotTime, userData.email);
         await sendAppointmentEmail(userData.name, coderData.name, slotDate, slotTime, userData.email);
         delete coderData.slots_booked
 

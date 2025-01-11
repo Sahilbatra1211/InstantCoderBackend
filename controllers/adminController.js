@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import appointmentModel from "../models/appointmentModel.js";
-import coderModel from "../models/coderModel.js";
+import { appointmentModel, AppointmentTypes } from "../models/appointmentModel.js";
+import { coderModel } from "../models/coderModel.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
@@ -23,7 +23,6 @@ const loginAdmin = async (req, res) => {
         console.log(error)
         res.json({ success: false, message: error.message })
     }
-
 }
 
 
@@ -60,11 +59,11 @@ const appointmentCancel = async (req, res) => {
 // API for adding Coder
 const addCoder = async (req, res) => {
     try {
-        const { name, email, password, specialities, experience, about } = req.body;
+        const { name, email, password, specialities, experience, about, appointmentCharges } = req.body;
         const imageFile = req.file;
-        console.log(specialities);
+
         // Check for all required fields
-        if (!name || !email || !password || !specialities || !experience || !about) {
+        if (!name || !email || !password || !specialities || !experience || !about || !appointmentCharges) {
             return res.json({ success: false, message: "Missing Details" });
         }
 
@@ -84,14 +83,27 @@ const addCoder = async (req, res) => {
             return res.json({ success: false, message: "Please provide at least one speciality with fees" });
         }
 
-        // Ensure each speciality object has a name and fees
+        // Ensure each speciality object has a name and fee
         for (const speciality of parsedSpecialities) {
             if (!speciality.speciality || typeof speciality.speciality !== 'string' || speciality.speciality.trim() === '') {
                 return res.json({ success: false, message: "Each speciality must have a valid name" });
             }
+        }
 
-            if (!speciality.fee || isNaN(parseFloat(speciality.fee)) || parseFloat(speciality.fee) <= 0) {
-                return res.json({ success: false, message: "Each speciality must have a numeric fee greater than 0" });
+        // Validate appointmentCharges (Assuming it's an array of objects with `appointmentType`, `chargePerHour`, and `durationInMinutes`)
+        const parsedAppointmentCharges = JSON.parse(appointmentCharges); // Expecting appointmentCharges to be a JSON string
+        if (!Array.isArray(parsedAppointmentCharges) || parsedAppointmentCharges.length === 0) {
+            return res.json({ success: false, message: "Please provide at least one appointment charge" });
+        }
+
+        // Ensure each appointment charge object has valid fields
+        for (const charge of parsedAppointmentCharges) {
+            if (!charge.appointmentType || !Object.values(AppointmentTypes).includes(charge.appointmentType)) {
+                return res.json({ success: false, message: "Invalid appointment type" });
+            }
+
+            if (!charge.chargePerHour || isNaN(parseFloat(charge.chargePerHour)) || parseFloat(charge.chargePerHour) <= 0) {
+                return res.json({ success: false, message: "Each charge must have a valid chargePerHour greater than 0" });
             }
         }
 
@@ -103,6 +115,7 @@ const addCoder = async (req, res) => {
         const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
         const imageUrl = imageUpload.secure_url;
 
+        // Prepare coder data
         const coderData = {
             name,
             email,
@@ -111,9 +124,11 @@ const addCoder = async (req, res) => {
             specialities: parsedSpecialities, // Store specialities as an array of objects
             experience,
             about,
+            appointmentCharges: parsedAppointmentCharges, // Store appointmentCharges as an array of objects
             date: Date.now()
         };
 
+        // Create and save new coder
         const newCoder = new coderModel(coderData);
         await newCoder.save();
         res.json({ success: true, message: 'Coder Added' });
