@@ -11,25 +11,26 @@ import paymentRouter from './routes/paymentRoute.js';
 
 
 // app config
-const app = express()
-const port = process.env.PORT || 8080
-connectDB()
-connectCloudinary()
-
+const app = express();
+const port = process.env.PORT || 8080;
+connectDB();
+connectCloudinary();
 
 // middlewares
-app.use(express.json())
-app.use(cors())
+app.use(express.json());
+app.use(cors());
 
 // api endpoints
-app.use("/api/user", userRouter)
-app.use("/api/admin", adminRouter)
-app.use("/api/coder", coderRouter)
+app.use("/api/user", userRouter);
+app.use("/api/admin", adminRouter);
+app.use("/api/coder", coderRouter);
 app.use("/api/companies", companyRouter);
 app.use("/api/payment", paymentRouter);
 
 app.get("/", (req, res) => {
-  res.send("API Working")
+  res.send("API Working");
 });
 
-app.listen(port, "0.0.0.0", () => console.log(`Server started on PORT:${port}`));
+app.listen(port, "0.0.0.0", () =>
+  console.log(`Server started on PORT:${port}`)
+);
