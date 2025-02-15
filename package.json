@@ -31,13 +31,16 @@
     "razorpay": "^2.9.4",
     "stripe": "^16.5.0",
     "validator": "^13.12.0",
-    "whatsapp-web.js": "^1.26.0"
+    "whatsapp-web.js": "^1.26.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.20.0",
     "cross-env": "^7.0.3",
-    "eslint": "^9.17.0",
+    "eslint": "^9.20.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.15.0",
     "prettier": "^3.4.2"
   }
 }
