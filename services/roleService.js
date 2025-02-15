@@ -7,8 +7,8 @@ export const createRoleService = async (data) => {
 
   const newRole = await prisma.role.create({
     data: {
-      roleType,
-      experienceInYears,
+      role_type: roleType,
+      experience_in_years: experienceInYears,
       ...auditFields,
     },
   });
