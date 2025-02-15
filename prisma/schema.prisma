@@ -10,7 +10,6 @@ datasource db {
 model company {
   id          Int       @id @default(autoincrement())
   name        String    @unique @db.VarChar(255) // Ensures uniqueness
-  name        String    @unique @db.VarChar(255)
   description String?
   logo_url    String?   @db.VarChar(500)
   created_at  DateTime? @default(now()) @db.Timestamp(6)
@@ -42,4 +41,26 @@ enum role_type {
   SDE1
   SDE2
   SDE3
+}
+
+model booking {
+  id         Int      @id @default(autoincrement())
+  amount     Float
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String?
+}
+
+enum payment_status {
+  PENDING
+  FAILED
+  SUCCESS
+}
+
+model payment {
+  id                    Int            @id @default(autoincrement())
+  order_id_from_gateway String         @unique
+  amount                Float
+  status                payment_status
 }

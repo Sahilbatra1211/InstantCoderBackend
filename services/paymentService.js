@@ -32,16 +32,17 @@ export const initiatePaymentService = async (data) => {
       },
     });
 
+
     // Save order details in the payment table
     await prisma.payment.create({
       data: {
         order_id_from_gateway: order.id,
         amount: bookingAmount,
-        status: "created",
+        status: 'PENDING', // replace with enum
       },
     });
-
-    return { orderId: order.id };
+    console.log(order)
+    return { orderId: order.id, amount: amount, currency: "INR" };
   } catch (error) {
     console.error("Error initiating payment:", error);
     throw new Error("Failed to initiate payment");

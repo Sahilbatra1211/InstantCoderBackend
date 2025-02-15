@@ -1,11 +1,18 @@
 {
-    "editor.tabSize": 2,  // Set tab size to 2 spaces
-    "editor.insertSpaces": true,  // Ensure spaces are used instead of tabs
-    "editor.formatOnSave": true,  // Auto-format on save
-    "eslint.autoFixOnSave": true,  // Enable auto-fixing for ESLint on save
-    "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit"
-    },
-    "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]  // Enable ESLint validation for JS/TS files
-  }
-  
+  "editor.tabSize": 2, // Set tab size to 2 spaces
+  "editor.insertSpaces": true, // Ensure spaces are used instead of tabs
+  "editor.formatOnSave": true, // Auto-format on save
+  "eslint.autoFixOnSave": true, // Enable auto-fixing for ESLint on save
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma-insider"
+  },
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ] // Enable ESLint validation for JS/TS files
+}
