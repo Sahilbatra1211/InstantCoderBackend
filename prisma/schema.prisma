@@ -7,14 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Company {
   id          Int       @id @default(autoincrement())
-  name        String    @db.VarChar(255) @unique  // Ensures uniqueness
+  name        String    @unique @db.VarChar(255) // Ensures uniqueness
   description String?
   logo_url    String?   @db.VarChar(500)
   created_at  DateTime? @default(now()) @db.Timestamp(6)
   updated_at  DateTime? @default(now()) @db.Timestamp(6)
   created_by  String
   updated_by  String?
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  amount     Float
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  created_by String
+  updated_by String?
+}
+
+model Payment {
+  id                    Int       @id @default(autoincrement())
+  order_id_from_gateway String    @unique
+  amount                Float
+  status                String
 }

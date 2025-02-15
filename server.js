@@ -7,6 +7,7 @@ import userRouter from "./routes/userRoute.js"
 import coderRouter from "./routes/coderRoute.js"
 import adminRouter from "./routes/adminRoute.js"
 import companyRouter from './routes/companyRoute.js';
+import paymentRouter from './routes/paymentRoute.js';
 
 
 // app config
@@ -25,6 +26,7 @@ app.use("/api/user", userRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/coder", coderRouter)
 app.use("/api/companies", companyRouter);
+app.use("/api/payment", paymentRouter);
 
 app.get("/", (req, res) => {
   res.send("API Working")
