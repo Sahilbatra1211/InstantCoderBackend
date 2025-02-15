@@ -3,6 +3,7 @@ import CompanyModel from "../models/companyModel.js";
 
 // create a company
 const createCompany = async (req, res) => {
+  console.log("Create company");
   try {
     const { name, levels } = req.body;
 
@@ -17,7 +18,7 @@ const createCompany = async (req, res) => {
 };
 
 const getCompanies = async (req, res) => {
-  console.log("test");
+  console.log("Get Companies");
   try {
     const companies = await CompanyModel.find({});
     res.json({ success: true, companies });
