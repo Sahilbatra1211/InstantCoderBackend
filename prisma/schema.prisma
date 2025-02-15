@@ -48,13 +48,6 @@ model booking {
   updated_by String?
 }
 
-model payment {
-  id                    Int            @id @default(autoincrement())
-  order_id_from_gateway String         @unique
-  amount                Float
-  status                payment_status
-}
-
 model company_role {
   id                 Int       @id @default(autoincrement())
   company_id         Int
@@ -79,4 +72,11 @@ enum payment_status {
   PENDING
   FAILED
   SUCCESS
+}
+
+model payment {
+  id                    Int            @id @default(autoincrement())
+  order_id_from_gateway String         @unique
+  amount                Float
+  status                payment_status
 }
