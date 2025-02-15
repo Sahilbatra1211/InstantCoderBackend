@@ -1,114 +1,50 @@
+import {
+  createCompanyService,
+  updateCompanyService,
+} from "../services/companyService.js";
+import { companyResponse } from "../validations/companyValidation.js";
 
-import CompanyModel from "../models/companyModel.js";
-
-// create a company
-const createCompany = async (req, res) => {
-  console.log("Create company");
+export const createCompany = async (req, res) => {
   try {
-    const { name, levels } = req.body;
+    const newCompany = await createCompanyService(req.body);
 
-    const newCompany = new CompanyModel({ name, levels });
-    await newCompany.save();
+    const filteredCompany = {
+      id: newCompany.id,
+      name: newCompany.name,
+      description: newCompany.description,
+      logoUrl: newCompany.logo_url, // Ensure it matches your response schema
+    };
 
-    res.json({ success: true, message: "Company created successfully", company: newCompany });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
+    const responseValidation = companyResponse.safeParse(filteredCompany);
 
-const getCompanies = async (req, res) => {
-  console.log("Get Companies");
-  try {
-    const companies = await CompanyModel.find({});
-    res.json({ success: true, companies });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const getCompanyByName = async (req, res) => {
-  try {
-    const { name } = req.params;
-
-    const company = await CompanyModel.findOne({ name });
-    if (!company) {
-      return res.status(404).json({ success: false, message: "Company not found" });
+    if (!responseValidation.success) {
+      console.log(responseValidation.error.errors);
+      return res.status(500).json({ errors: responseValidation.error.errors });
     }
 
-    res.json({ success: true, company });
+    res.status(201).json(filteredCompany); // ✅ ID is automatically included in response
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Company creation failed:", error.message || error);
+    res.status(500).json({
+      error: "Company creation failed",
+      message: error.message || "Unknown error",
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 };
 
-const updateCompany = async (req, res) => {
+export const updateCompany = async (req, res) => {
   try {
-    const { name } = req.params;
-    const updates = req.body;
-
-    const updatedCompany = await CompanyModel.findOneAndUpdate(
-      { name },
-      { $set: updates },
-      { new: true }
-    );
-
-    if (!updatedCompany) {
-      return res.status(404).json({ success: false, message: "Company not found" });
+    const { id } = req.params;
+    const company = await updateCompanyService(id, req.body);
+    const responseValidation = companyResponse.safeParse(company);
+    if (!responseValidation.success) {
+      return res.status(500).json({ errors: responseValidation.error.errors });
     }
 
-    res.json({ success: true, message: "Company updated successfully", company: updatedCompany });
+    res.json(company); // ✅ Now always returns the `id`
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ error: "Company update failed" });
   }
-};
-
-
-const deleteCompany = async (req, res) => {
-  try {
-    const { name } = req.params;
-
-    const deletedCompany = await CompanyModel.findOneAndDelete({ name });
-    if (!deletedCompany) {
-      return res.status(404).json({ success: false, message: "Company not found" });
-    }
-
-    res.json({ success: true, message: "Company deleted successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-const getCompaniesWithLevelNames = async (req, res) => {
-  try {
-    console.log("getCompaniesWithLevelNames endpoint called");
-    const companies = await CompanyModel.find({}, "name levels.levelName"); // Fetch only 'name' and 'levels.levelName'
-    if (!companies.length) {
-      return res.json({ success: true, message: "No companies found", companies: [] });
-    }
-
-    // Format response to only include company name and level names
-    const formattedCompanies = companies.map(company => ({
-      name: company.name,
-      levels: company.levels.map(level => level.levelName),
-    }));
-
-    res.json({ success: true, companies: formattedCompanies });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-export {
-  createCompany,
-  getCompanies,
-  getCompanyByName,
-  updateCompany,
-  deleteCompany,
-  getCompaniesWithLevelNames
 };
