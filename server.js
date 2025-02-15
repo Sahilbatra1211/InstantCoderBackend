@@ -8,6 +8,7 @@ import coderRouter from "./routes/coderRoute.js";
 import adminRouter from "./routes/adminRoute.js";
 import companyRouter from "./routes/companyRoute.js";
 import collegeRouter from "./routes/collegeRoute.js";
+import roleRoutes from "./routes/roleRoute.js";
 
 // app config
 const app = express();
@@ -25,7 +26,7 @@ app.use("/api/admin", adminRouter);
 app.use("/api/coder", coderRouter);
 app.use("/api/companies", companyRouter);
 app.use("/api/colleges", collegeRouter);
-
+app.use("/api/roles", roleRoutes);
 app.get("/", (req, res) => {
   res.send("API Working");
 });

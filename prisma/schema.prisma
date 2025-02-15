@@ -27,3 +27,20 @@ model College {
   created_by  String
   updated_by  String?
 }
+
+model Role {
+  id                 Int      @id @default(autoincrement())
+  roleType           RoleType @unique
+  experienceInYears  String   @db.VarChar(10)
+
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+  created_by  String
+  updated_by  String?
+}
+
+enum RoleType {
+  SDE1
+  SDE2
+  SDE3
+}
