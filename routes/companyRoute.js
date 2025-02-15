@@ -2,6 +2,9 @@ import express from "express";
 import {
   createCompany,
   updateCompany,
+  getAllCompanies,
+  getCompanyById,
+  deleteCompany,
 } from "../controllers/companyController.js";
 import authAdmin from "../middleware/authAdmin.js";
 import validateRequest from "../middleware/validateRequest.js";
@@ -11,6 +14,10 @@ import {
 } from "../validations/companyValidation.js";
 
 const companyRouter = express.Router();
+
+companyRouter.get("/", getAllCompanies);
+
+companyRouter.get("/:id", getCompanyById);
 
 companyRouter.post(
   "/create",
@@ -25,5 +32,7 @@ companyRouter.post(
   validateRequest(updateCompanyRequest),
   updateCompany
 );
+
+companyRouter.delete("/:id", authAdmin, deleteCompany);
 
 export default companyRouter;
