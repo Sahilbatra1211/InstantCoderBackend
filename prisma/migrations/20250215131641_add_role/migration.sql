@@ -2,7 +2,7 @@
 CREATE TYPE "RoleType" AS ENUM ('SDE1', 'SDE2', 'SDE3');
 
 -- CreateTable
-CREATE TABLE "Role" (
+CREATE TABLE IF NOT EXISTS "Role" (
     "id" SERIAL NOT NULL,
     "roleType" "RoleType" NOT NULL,
     "experienceInYears" VARCHAR(10) NOT NULL,
