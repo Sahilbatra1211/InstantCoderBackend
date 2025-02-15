@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "College" (
+CREATE TABLE IF NOT EXISTS "College" (
     "id" SERIAL NOT NULL,
     "name" VARCHAR(255) NOT NULL,
 
