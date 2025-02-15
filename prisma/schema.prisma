@@ -18,3 +18,12 @@ model Company {
   created_by  String
   updated_by  String?
 }
+
+model College {
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255) @unique
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+  created_by  String
+  updated_by  String?
+}
