@@ -18,11 +18,19 @@ export const createCompanyService = async (data) => {
 };
 
 export const updateCompanyService = async (id, data) => {
-  const { name, description, logoUrl, updatedBy } = data;
+  const { name, description, logoUrl } = data;
+
+  const updateData = {
+    ...(name !== undefined && { name }),
+    ...(description !== undefined && { description }),
+    ...(logoUrl !== undefined && { logoUrl }),
+    ...getAuditFields("admin", true),
+  };
 
   const company = await prisma.company.update({
     where: { id },
-    data: { name, description, logoUrl, updatedBy },
+    data: updateData,
   });
+
   return company;
 };

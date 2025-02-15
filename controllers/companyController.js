@@ -35,16 +35,28 @@ export const createCompany = async (req, res) => {
 
 export const updateCompany = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
     const company = await updateCompanyService(id, req.body);
-    const responseValidation = companyResponse.safeParse(company);
+
+    const filteredCompany = {
+      id: company.id,
+      name: company.name,
+      description: company.description,
+      logoUrl: company.logo_url, // Ensure it matches your response schema
+    };
+
+    const responseValidation = companyResponse.safeParse(filteredCompany);
     if (!responseValidation.success) {
       return res.status(500).json({ errors: responseValidation.error.errors });
     }
 
-    res.json(company); // ✅ Now always returns the `id`
+    res.json(filteredCompany); // ✅ Now always returns the `id`
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Company update failed" });
+    res.status(500).json({
+      error: "Company updation failed",
+      message: error.message || "Unknown error",
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 };
