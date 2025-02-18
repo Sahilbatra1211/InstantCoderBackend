@@ -60,5 +60,37 @@ export const registerUserService = async (data) => {
   return { success: true, user: newUser };
 };
 
+export const loginUserService = async (data) => {
+  const { email, password } = data;
+
+  if (!email || !password) {
+    throw new Error("Missing email or password");
+  }
+
+  if (!validator.isEmail(email)) {
+    throw new Error("Please enter a valid email");
+  }
+
+  const user = await prisma.user.findFirst({
+    where: { email: email },
+    select: {
+      name: true,
+      email: true,
+      is_mentor: true,
+      password: true
+    },
+  });
 
 
+  if (!user) {
+    throw new Error("Invalid email or password");
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    throw new Error("Invalid email or password");
+  }
+  const { password: _, ...userWithoutPassword } = user;
+
+  return { user: userWithoutPassword };
+};

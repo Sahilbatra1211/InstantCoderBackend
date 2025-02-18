@@ -12,6 +12,7 @@ import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
 import {
   registerUserService,
+  loginUserService
 } from "../services/userService.js";
 
 const client = new OAuth2Client(
@@ -175,7 +176,7 @@ const registerUser = async (req, res) => {
   try {
     const newUser = await registerUserService(req.body);
     const token = jwt.sign({ newUser }, process.env.JWT_SECRET);
-    return res.status(201).json({ success: true, token });
+    return res.status(201).json({ success: true, token, newUser });
   } catch (error) {
     console.error("User creation failed:", error.message);
 
@@ -194,28 +195,16 @@ const registerUser = async (req, res) => {
   }
 };
 
-
 // API to login user
 const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await userModel.findOne({ email });
-
-    if (!user) {
-      return res.json({ success: false, message: "User does not exist" });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (isMatch) {
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-      res.json({ success: true, token });
-    } else {
-      res.json({ success: false, message: "Invalid credentials" });
-    }
+    const { user } = await loginUserService(req.body);
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+    res.json({ success: true, message: "Login successful", token, user });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    res.status(400).json({ success: false, message: error.message });
   }
 };
 
