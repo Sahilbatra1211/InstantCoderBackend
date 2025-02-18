@@ -17,6 +17,7 @@ model company {
   created_by   String
   updated_by   String?
   company_role company_role[]
+  user         user[]
 }
 
 model college {
@@ -26,6 +27,7 @@ model college {
   updated_at DateTime? @default(now()) @db.Timestamp(6)
   created_by String
   updated_by String?
+  user       user[]
 }
 
 model role {
@@ -79,4 +81,17 @@ model payment {
   order_id_from_gateway String         @unique
   amount                Float
   status                payment_status
+}
+
+model user {
+  email      String  @id // Primary key
+  name       String
+  phone      String?
+  company_id Int?
+  college_id Int?
+  password   String
+  is_mentor  Boolean
+
+  company company? @relation(fields: [company_id], references: [id]) // Foreign Key
+  college college? @relation(fields: [college_id], references: [id]) // Foreign Key
 }

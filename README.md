@@ -8,3 +8,6 @@ End pointd exposed on prod:
 
 Potential issues:
 1. One of the mogodb enviornment vairables was explictly through azure, so I am assuming .env file is not getting read correctly which might lead to some other variables not being read correctly and breaking the functionalit, do consider this when som issue comes.
+
+steps to build the schema
+npx prisma migrate dev --name comment_in_snake_case_without_quotes

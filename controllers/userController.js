@@ -10,6 +10,9 @@ import razorpay from "razorpay";
 import nodemailer from "nodemailer";
 import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
+import {
+  registerUserService,
+} from "../services/userService.js";
 
 const client = new OAuth2Client(
   "969886296841-a0fr5bnv2rrt22bptihti8o9cabsghh8.apps.googleusercontent.com"
@@ -170,58 +173,27 @@ if (process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET) {
 // API to register user
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-
-    // checking for all data to register user
-    if (!name || !email || !password) {
-      return res.json({ success: false, message: "Missing Details" });
-    }
-
-    // validating email format
-    if (!validator.isEmail(email)) {
-      return res.json({
-        success: false,
-        message: "Please enter a valid email",
-      });
-    }
-
-    // validating strong password
-    if (password.length < 8) {
-      return res.json({
-        success: false,
-        message: "Please enter a strong password",
-      });
-    }
-
-    // hashing user password
-    const salt = await bcrypt.genSalt(10); // the more no. round the more time it will take
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    // throw error if the users already exists
-    const existingUser = await userModel.findOne({ email });
-    if (existingUser != null) {
-      return res.json({
-        success: false,
-        message: "Email is already registered. Please login instead.",
-      });
-    }
-
-    const userData = {
-      name,
-      email,
-      password: hashedPassword,
-    };
-
-    const newUser = new userModel(userData);
-    const user = await newUser.save();
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-
-    res.json({ success: true, token });
+    const newUser = await registerUserService(req.body);
+    const token = jwt.sign({ newUser }, process.env.JWT_SECRET);
+    return res.status(201).json({ success: true, token });
   } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
+    console.error("User creation failed:", error.message);
+
+    let statusCode = 500;
+    if (error.message.includes("required") || error.message.includes("Invalid") || error.message.includes("valid email") || error.message.includes("Password must")) {
+      statusCode = 400;
+    } else if (error.message.includes("already registered")) {
+      statusCode = 409;
+    }
+
+    res.status(statusCode).json({
+      error: "User creation failed",
+      message: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+    });
   }
 };
+
 
 // API to login user
 const loginUser = async (req, res) => {
